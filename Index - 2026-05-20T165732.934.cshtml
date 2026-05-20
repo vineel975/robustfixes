@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.TitleDepartment = "Claims";
     ViewBag.Title = "Claim";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9490,14 +9490,10 @@
                         setTimeout(function() { $tmpBtn.remove(); }, 500);
                     }, 15000);
 
-                    // Step 4 (18s): Full page reload — refresh all fields with saved values
-                    // Use sessionStorage to preserve scroll position and re-expand AI summary if needed
-                    setTimeout(function() {
-                        console.log('[ClaimAI] All saves complete — reloading page to refresh fields');
-                        sessionStorage.setItem('claimAI_reloadedAt', String(Date.now()));
-                        sessionStorage.setItem('claimAI_lastClaimId', $('#hdnClaimID').val() || '');
-                        window.location.reload();
-                    }, 18000);
+                    // No page reload — the coding submit (Step 3) triggers Spectra's native
+                    // form submit which navigates/refreshes the page natively. Adding our own
+                    // reload here caused Claim Actions to disappear because state flags
+                    // weren't yet committed to DB.
 
                     // Fade toast after 2 seconds
                     setTimeout(function() {
