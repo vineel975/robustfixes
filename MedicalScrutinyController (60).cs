@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -10260,22 +10260,14 @@ namespace Enrollment.Controllers
                     if (m.Success) connStr = m.Groups[1].Value.Replace("&quot;", """);
                 }
 
-                using (var conn = new System.Data.SqlClient.SqlConnection(connStr))
-                {
-                    conn.Open();
-
-                    // Set BillingCorrection=2 on Claimsdetails so billing validation passes
-                    var cmd1 = conn.CreateCommand();
-                    cmd1.CommandText = @"
-                        UPDATE Claimsdetails
-                        SET    BillingCorrection = 2
-                        WHERE  ClaimID = @ClaimID
-                          AND  Slno    = @SlNo
-                          AND  ISNULL(Deleted, 0) = 0";
-                    cmd1.Parameters.AddWithValue("@ClaimID", claimIdLong);
-                    cmd1.Parameters.AddWithValue("@SlNo",    slNoInt);
-                    cmd1.ExecuteNonQuery();
-                }
+                // DO NOT modify BillingCorrection or IsAprvFacilitychanged in DB here.
+                // Spectra's native save buttons (Hospitalization, Coding, Bill) manage these
+                // flags themselves based on user edits. Permanently overriding them caused
+                // Claim Actions to disappear after manual edits + saves through Spectra.
+                //
+                // In-memory override (basicData[0].BillingCorrection = 2) is enough for the
+                // current session — Spectra refresh / native save will compute the right
+                // state from DB which is what we want.
 
                 return Json(new { success = true });
             }
