@@ -813,12 +813,12 @@ export function PatientInfoTab({
     if (ld && rd) return ld === rd;
 
     // Gender normalization
-    // Spectra DB stores: 1 = Male, 2 = Female
+    // Spectra ViewData["Gender"]: 1 = Female, 2 = Male (as per hdnGender comment in Index.cshtml)
     // AI extracts: "male" / "female" / "m" / "f"
     const normalizeGender = (s: string): string => {
       const g = normalize(s);
-      if (g === "1" || g === "m" || g === "male")   return "male";
-      if (g === "2" || g === "f" || g === "female") return "female";
+      if (g === "2" || g === "m" || g === "male")   return "male";
+      if (g === "1" || g === "f" || g === "female") return "female";
       return g;
     };
     const genderKeywords = ["male","female","m","f","1","2"];
@@ -1768,7 +1768,8 @@ export function PatientInfoTab({
         placeholder: "Patient name",
         dbEntries: allDbEntries,
         dbAliases: ["membername", "patientname", "name"],
-        validationField: "patientName",
+        extendedValidationKey: "patientName",   // uses spectraFields.patientName from route
+        validationField: "patientName",          // fallback to validateExtractedPatient
       },
       {
         key: "hospitalName",
@@ -1787,7 +1788,8 @@ export function PatientInfoTab({
         type: "number",
         dbEntries: allDbEntries,
         dbAliases: ["age", "patientage"],
-        validationField: "patientAge",
+        extendedValidationKey: "patientAge",    // uses spectraFields.patientAge from route
+        validationField: "patientAge",           // fallback
       },
       {
         key: "patientGender",
@@ -1796,7 +1798,8 @@ export function PatientInfoTab({
         placeholder: "Gender",
         dbEntries: allDbEntries,
         dbAliases: ["gender", "genderid", "patientgender"],
-        validationField: "patientGender",
+        extendedValidationKey: "patientGender", // uses spectraFields.patientGender from route
+        validationField: "patientGender",        // fallback
       },
       {
         key: "policyNumber",
@@ -1804,10 +1807,9 @@ export function PatientInfoTab({
         changeLabel: "POLICY NUMBER",
         placeholder: "Policy number",
         dbEntries: allDbEntries,
-        // Use UHIDNO — the patient's unique health ID, same column
-        // validateExtractedPatient compares against in lib/db.ts
         dbAliases: ["uhidno", "uhid", "patientuhid", "policyno", "policynumber"],
-        validationField: "policyNumber",
+        extendedValidationKey: "policyNumber",  // uses spectraFields.policyNumber from route
+        validationField: "policyNumber",         // fallback
       },
       {
         key: "date",
@@ -1834,6 +1836,7 @@ export function PatientInfoTab({
         placeholder: "Discharge date",
         dbEntries: allDbEntries,
         dbAliases: ["dateofdischarge", "dod", "dischargedate"],
+        extendedValidationKey: "dischargeDate", // uses spectraFields.dischargeDate from route
       },
     ];
 
