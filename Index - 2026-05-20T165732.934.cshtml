@@ -7425,18 +7425,21 @@
                     if (fields.approvedFacilityName) spectraFields.approvedAccommodation = fields.approvedFacilityName;
                     if (fields.reqFacilityId)   window._claimAI_reqFacilityId   = fields.reqFacilityId;
                     if (fields.reqFacilityName) window._claimAI_reqFacilityName = fields.reqFacilityName;
-                    // Restore ApprovedFacilityID from DB on page load
-                    // Do NOT trigger('change') — it causes Spectra handlers to reset it
+                    // Restore ApprovedFacilityID from DB on page load using the ACTUAL saved value
+                    // Do NOT hardcode any default — that overrides user edits made through
+                    // the native Save Hospitalization Details button.
                     if (fields.approvedFacilityId) {
                         window._claimAI_approvedFacilityId = fields.approvedFacilityId;
-                        // Apply after all page load events have settled
                         var _savedFacId = fields.approvedFacilityId;
                         var _applyFacility = function() {
                             var $aprvDdl = $('#ddlApprovedFacility');
-                                var _facToApply = 195; // ClaimAI: Always Day-care
-                            if ($aprvDdl.find('option[value="' + _facToApply + '"]').length > 0) {
-                                $aprvDdl.val(_facToApply);
-                                console.log('[ClaimAI] ApprovedFacility restored silently:', _facToApply);
+                            // Only apply the DB value if the dropdown is currently empty/unset
+                            // — never overwrite a value the user just selected.
+                            var _currentVal = $aprvDdl.val();
+                            if ((!_currentVal || _currentVal === '' || _currentVal === '0') &&
+                                $aprvDdl.find('option[value="' + _savedFacId + '"]').length > 0) {
+                                $aprvDdl.val(_savedFacId);
+                                console.log('[ClaimAI] ApprovedFacility restored from DB:', _savedFacId);
                             }
                         };
                         setTimeout(_applyFacility, 1000);
