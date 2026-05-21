@@ -248,23 +248,65 @@ export async function POST(request: NextRequest) {
           return parseDate(ai) === parseDate(db);
         };
 
+        // Patient name
+        const aiName = normalizeForCompare(result.analysis.patientName?.value);
+        const dbName = normalizeForCompare(spectraFields.patientName);
+        if (aiName && dbName) {
+          extendedFields.push({
+            field: "patientName",
+            aiValue: String(result.analysis.patientName?.value ?? ""),
+            dbValue: String(spectraFields.patientName ?? ""),
+            isMatch: aiName.includes(dbName) || dbName.includes(aiName),
+            aiSource: "Extracted from PDF",
+            dbSource: "Spectra DB (Patient Name)",
+          });
+        }
+
         // Hospital name
         const aiHospital = normalizeForCompare(result.analysis.hospitalName?.value);
-        const dbHospital = normalizeForCompare(spectraFields.hospitalName ?? spectraFields.providerName);
+        const dbHospital = normalizeForCompare(spectraFields.hospitalName);
         if (aiHospital && dbHospital) {
           extendedFields.push({
             field: "hospitalName",
             aiValue: String(result.analysis.hospitalName?.value ?? ""),
-            dbValue: String(spectraFields.hospitalName ?? spectraFields.providerName ?? ""),
+            dbValue: String(spectraFields.hospitalName ?? ""),
             isMatch: aiHospital.includes(dbHospital) || dbHospital.includes(aiHospital),
             aiSource: "Extracted from PDF",
             dbSource: "Spectra DB (Provider)",
           });
         }
 
+        // Patient age
+        const aiAge = String(result.analysis.patientAge?.value ?? "").trim();
+        const dbAge = String(spectraFields.patientAge ?? "").trim();
+        if (aiAge && dbAge) {
+          extendedFields.push({
+            field: "patientAge",
+            aiValue: aiAge,
+            dbValue: dbAge,
+            isMatch: parseFloat(aiAge) === parseFloat(dbAge),
+            aiSource: "Extracted from PDF",
+            dbSource: "Spectra DB (Age)",
+          });
+        }
+
+        // Policy number
+        const aiPolicy = normalizeForCompare(result.analysis.policyNumber?.value);
+        const dbPolicy = normalizeForCompare(spectraFields.policyNumber);
+        if (aiPolicy && dbPolicy) {
+          extendedFields.push({
+            field: "policyNumber",
+            aiValue: String(result.analysis.policyNumber?.value ?? ""),
+            dbValue: String(spectraFields.policyNumber ?? ""),
+            isMatch: aiPolicy === dbPolicy,
+            aiSource: "Extracted from PDF",
+            dbSource: "Spectra DB (UHID/Policy)",
+          });
+        }
+
         // Admission date
         const aiDoa = String(result.analysis.admissionDate?.value ?? "").trim();
-        const dbDoa = String(spectraFields.doa ?? spectraFields.admissionDate ?? "").trim();
+        const dbDoa = String(spectraFields.admissionDate ?? "").trim();
         if (aiDoa && dbDoa) {
           extendedFields.push({
             field: "admissionDate",
@@ -276,9 +318,23 @@ export async function POST(request: NextRequest) {
           });
         }
 
+        // Discharge date
+        const aiDod = String(result.analysis.dischargeDate?.value ?? "").trim();
+        const dbDod = String(spectraFields.dischargeDate ?? "").trim();
+        if (aiDod && dbDod) {
+          extendedFields.push({
+            field: "dischargeDate",
+            aiValue: aiDod,
+            dbValue: dbDod,
+            isMatch: dateMatch(aiDod, dbDod),
+            aiSource: "Extracted from PDF",
+            dbSource: "Spectra DB (DOD)",
+          });
+        }
+
         // Document date
         const aiDate = String(result.analysis.date?.value ?? "").trim();
-        const dbDate = String(spectraFields.documentDate ?? spectraFields.billDate ?? "").trim();
+        const dbDate = String(spectraFields.documentDate ?? "").trim();
         if (aiDate && dbDate) {
           extendedFields.push({
             field: "documentDate",
@@ -290,9 +346,9 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Gender (from spectraFields DB value)
+        // Gender
         const aiGender = normalizeForCompare(result.analysis.patientGender?.value);
-        const dbGender = normalizeForCompare(spectraFields.gender ?? spectraFields.patientGender);
+        const dbGender = normalizeForCompare(spectraFields.patientGender);
         if (aiGender && dbGender) {
           const normalizeGender = (g: string) => {
             if (g === "1" || g === "m" || g === "male")   return "male";
@@ -302,7 +358,7 @@ export async function POST(request: NextRequest) {
           extendedFields.push({
             field: "patientGender",
             aiValue: String(result.analysis.patientGender?.value ?? ""),
-            dbValue: String(spectraFields.gender ?? spectraFields.patientGender ?? ""),
+            dbValue: String(spectraFields.patientGender ?? ""),
             isMatch: normalizeGender(aiGender) === normalizeGender(dbGender),
             aiSource: "Extracted from PDF",
             dbSource: "Spectra DB (Gender)",
