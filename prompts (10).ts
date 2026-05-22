@@ -417,7 +417,7 @@ Return a JSON array of short bullet point strings. Each point should be concise 
 Example: ["Cataract surgery covered up to Rs.40,000 per eye", "IOL implant included in limit", "Day-care procedure applicable"]
 
 If no relevant points found, return: []
-Return ONLY the JSON array. No other text.
+Return ONLY the raw JSON array. No markdown, no code fences, no explanation. Start your response with [ and end with ].
 ` : `
 ${section === "exclusions" ? `
 List what is NOT covered or has waiting periods. Return a JSON array of short bullet strings.
@@ -425,11 +425,11 @@ Example: ["Pre-existing diseases covered after 36 months", "30-day waiting perio
 Return ONLY the JSON array.
 ` : section === "copay" ? `
 State the co-pay percentage/amount and when it applies. Return a JSON array of short bullet strings.
-Return ONLY the JSON array.
+Return ONLY the raw JSON array. No markdown, no code fences. Start with [ end with ].
 ` : `
 Extract: (1) Normal delivery limit, (2) C-Section limit, (3) childbirths covered, (4) waiting period, (5) copay exceptions.
 Return a JSON array of short bullet strings with amounts.
-Return ONLY the JSON array.
+Return ONLY the raw JSON array. No markdown, no code fences. Start with [ end with ].
 `}
 `}
 `;
