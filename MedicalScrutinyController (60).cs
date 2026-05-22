@@ -9938,15 +9938,15 @@ namespace Enrollment.Controllers
                     cmd.Parameters.AddWithValue("@ClaimID",        claimIdLong);
                     cmd.Parameters.AddWithValue("@Slno",           (byte)slNoInt);
                     cmd.Parameters.AddWithValue("@TPAProcedureID", tpaProcId > 0 ? (object)tpaProcId : DBNull.Value);
-                    // Cap packageAmt by eligibleAmt — if benefit plan limit reduces it,
-                    // the coding row should reflect the capped amount as the bill/package too.
-                    // This ensures Bill Details, Coding Details and Final Calculate all show the same amount.
-                    decimal cappedPackage = (eligibleAmt > 0 && packageAmt > eligibleAmt) ? eligibleAmt : packageAmt;
-                    decimal disallowed    = (packageAmt > 0 && eligibleAmt > 0 && packageAmt > eligibleAmt)
-                                            ? (packageAmt - eligibleAmt) : 0m;
+                    // @BillAmount   = Total Medical Bill from iframe (no capping)
+                    // @PackageRate  = NULL — package not used for coding row
+                    // @EligibleAmount and @PayableAmount = eligible amount (after BP cap)
+                    // @DisallowedAmount = bill - eligible (only if bill > eligible)
+                    decimal disallowed = (packageAmt > 0 && eligibleAmt > 0 && packageAmt > eligibleAmt)
+                                         ? (packageAmt - eligibleAmt) : 0m;
 
-                    cmd.Parameters.AddWithValue("@BillAmount",     cappedPackage > 0 ? (object)cappedPackage : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@PackageRate",    cappedPackage > 0 ? (object)cappedPackage : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@BillAmount",     packageAmt > 0 ? (object)packageAmt : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@PackageRate",    DBNull.Value);
                     cmd.Parameters.AddWithValue("@Discount",       0m);
                     cmd.Parameters.AddWithValue("@EligibleAmount", eligibleAmt > 0 ? (object)eligibleAmt : DBNull.Value);
                     cmd.Parameters.AddWithValue("@DisallowedAmount", disallowed > 0 ? (object)disallowed : DBNull.Value);
