@@ -409,8 +409,9 @@ export function PatientInfoTab({
   const getExtendedFieldValidationInfo = (
     fieldKey: string,
   ): { status: "matched" | "mismatch"; aiValue: string; dbValue: string; aiSource: string; dbSource: string } | undefined => {
-    if (!patientValidation || patientValidation.fields.length === 0) return undefined;
-    // fields array may contain extended entries cast from ExtendedValidationField
+    // Check both patientValidation.fields (extended) AND patientInfoDb for extended fields
+    // Do NOT guard on fields.length === 0 — extended fields may exist even if standard fields are empty
+    if (!patientValidation) return undefined;
     const fieldResult = (patientValidation.fields as Array<{ field: string; aiValue: string | number | null; dbValue: string | number | null; isMatch: boolean; aiSource: string; dbSource: string }>)
       .find((item) => item.field === fieldKey);
     if (!fieldResult || fieldResult.aiValue === null || fieldResult.aiValue === undefined) return undefined;
@@ -1798,8 +1799,8 @@ export function PatientInfoTab({
         placeholder: "Gender",
         dbEntries: allDbEntries,
         dbAliases: ["gender", "genderid", "patientgender"],
-        extendedValidationKey: "patientGender", // uses spectraFields.patientGender from route
-        validationField: "patientGender",        // fallback
+        extendedValidationKey: "patientGender", // uses spectraFields.patientGender — normalized 1=Male 2=Female
+        // NO validationField fallback — raw DB comparison would fail ("Male" vs "1")
       },
       {
         key: "policyNumber",
