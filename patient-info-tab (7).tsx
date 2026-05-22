@@ -813,12 +813,12 @@ export function PatientInfoTab({
     if (ld && rd) return ld === rd;
 
     // Gender normalization
-    // Spectra ViewData["Gender"]: 1 = Female, 2 = Male (as per hdnGender comment in Index.cshtml)
+    // Spectra hdnGender: 1 = Male, 2 = Female
     // AI extracts: "male" / "female" / "m" / "f"
     const normalizeGender = (s: string): string => {
       const g = normalize(s);
-      if (g === "2" || g === "m" || g === "male")   return "male";
-      if (g === "1" || g === "f" || g === "female") return "female";
+      if (g === "1" || g === "m" || g === "male")   return "male";
+      if (g === "2" || g === "f" || g === "female") return "female";
       return g;
     };
     const genderKeywords = ["male","female","m","f","1","2"];
