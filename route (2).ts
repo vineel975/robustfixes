@@ -350,9 +350,10 @@ export async function POST(request: NextRequest) {
         const aiGender = normalizeForCompare(result.analysis.patientGender?.value);
         const dbGender = normalizeForCompare(spectraFields.patientGender);
         if (aiGender && dbGender) {
+          // Spectra DB: hdnGender 1=Female, 2=Male
           const normalizeGender = (g: string) => {
-            if (g === "1" || g === "m" || g === "male")   return "male";
-            if (g === "2" || g === "f" || g === "female") return "female";
+            if (g === "2" || g === "m" || g === "male")   return "male";
+            if (g === "1" || g === "f" || g === "female") return "female";
             return g;
           };
           extendedFields.push({
