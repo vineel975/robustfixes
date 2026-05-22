@@ -347,6 +347,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Gender
+        console.log("[audit/start] Gender debug — spectraFields.patientGender:", spectraFields.patientGender, "| AI:", result.analysis.patientGender?.value);
         const aiGender = normalizeForCompare(result.analysis.patientGender?.value);
         const dbGender = normalizeForCompare(spectraFields.patientGender);
         if (aiGender && dbGender) {
