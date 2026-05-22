@@ -26,19 +26,27 @@ export async function POST(request: NextRequest) {
 
     const trimmed = text.trim();
 
+    // Strip markdown code fences if AI wrapped response in ```json ... ``` or ``` ... ```
+    const stripped = trimmed
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/, "")
+      .trim();
+
     // Try to parse as JSON array of bullet points
     try {
-      const parsed = JSON.parse(trimmed);
+      const parsed = JSON.parse(stripped);
       if (Array.isArray(parsed)) {
-        // Filter out empty strings
-        const points = parsed.filter((p: unknown) => typeof p === "string" && p.trim().length > 0) as string[];
-        return NextResponse.json({ points, summary: points.join(". ") });
+        const points = parsed
+          .filter((p: unknown) => typeof p === "string" && (p as string).trim().length > 0)
+          .map((p: unknown) => (p as string).trim()) as string[];
+        return NextResponse.json({ points, summary: points.join(" | ") });
       }
     } catch {
       // Not JSON — return as plain text summary
     }
 
-    return NextResponse.json({ points: [], summary: trimmed });
+    return NextResponse.json({ points: [], summary: stripped });
   } catch (e) {
     console.error("[benefit-section-summary] error:", e);
     return NextResponse.json({ points: [], summary: "Summary unavailable." }, { status: 500 });
