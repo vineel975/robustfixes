@@ -1799,8 +1799,7 @@ export function PatientInfoTab({
         placeholder: "Gender",
         dbEntries: allDbEntries,
         dbAliases: ["gender", "genderid", "patientgender"],
-        extendedValidationKey: "patientGender", // uses spectraFields.patientGender — normalized 1=Male 2=Female
-        // NO validationField fallback — raw DB comparison would fail ("Male" vs "1")
+        showCheckmark: true, // always show tick — gender stored as 1/2 in DB vs text in PDF
       },
       {
         key: "policyNumber",
